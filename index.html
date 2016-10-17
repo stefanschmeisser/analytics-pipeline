@@ -63,9 +63,10 @@
         };
 
         conn.onopen = function(e){
-          conn.send("")
+          var initialMessage = {"message_type":"initial","data":{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ"}};
+          conn.send(JSON.stringify(initialMessage));
           $scope.$apply(function(){
-            $scope.messages.push("Connected")
+            $scope.messages.push("Connected");
           })
         }
 

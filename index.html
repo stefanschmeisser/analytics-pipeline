@@ -1,0 +1,91 @@
+<html ng-app="go-websocket-server">
+  <head>
+    <title>Go Websocket Server - Frontend</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+  </head>
+  <body ng-controller="MainCtl">
+
+    <div class="jumbotron">
+      <h1>Go Websocket Server</h1>
+    </div>
+
+    <div class="row">
+      <div class="col-lg-3">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="widget widget-kpi">
+              <h1>
+                CSAT: 60
+                <small> / 100</small>
+              </h1>
+            </div>
+          </div>
+          <div class="panel-footer">Customer satisfaction</div>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="widget widget-kpi">
+              <h1>
+                NPS: 74
+                <small> / 100</small>
+              </h1>
+            </div>
+          </div>
+          <div class="panel-footer">Net Promoter Score</div>
+        </div>
+      </div>
+    </row>
+
+    {{messages}}
+    <input type="text" placeholder="type here" ng-model="msg"><button class="btn btn-primary" ng-click="send()">Send</button>
+    <input type="text" placeholder="type here" ng-model="msg2"><button class="btn btn-primary" ng-click="sendAnother()">Send 2</button>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.min.js"></script>
+    <script>
+      var app = angular.module("go-websocket-server", []);
+
+      app.controller("MainCtl", ["$scope", function($scope){
+        $scope.messages = [];
+
+        var conn = new WebSocket("ws:localhost:3030/analyticsstream");
+
+        conn.onclose = function(e){
+          $scope.$apply(function(){
+            $scope.messages.push("Disconnected")
+          })
+        }
+
+        conn.onerror = function (e) {
+          console.log('WebSocket Error ' + e);
+        };
+
+        conn.onopen = function(e){
+          conn.send("")
+          $scope.$apply(function(){
+            $scope.messages.push("Connected")
+          })
+        }
+
+        conn.onmessage = function(e){
+          $scope.$apply(function(){
+            $scope.messages.push(e.data);
+          })
+        }
+
+        $scope.send = function(){
+          conn.send($scope.msg);
+          $scope.msg = '';
+        }
+
+        $scope.sendAnother = function(){
+          conn.send($scope.msg2);
+          $scope.msg2 = '';
+        }
+
+      }])
+    </script>
+  </body>
+</html>

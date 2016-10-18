@@ -1,6 +1,11 @@
 package handlers
 
-import "github.com/gorilla/websocket"
+import (
+	"fmt"
+
+	"github.com/gorilla/websocket"
+	"gopkg.in/redis.v5"
+)
 
 var connectionPool map[int]*websocket.Conn
 
@@ -28,5 +33,26 @@ func setConnection(id int, connection *websocket.Conn) bool {
 		return false
 	}
 	connectionPool[id] = connection
+
+	client := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+
+	pong, err := client.Ping().Result()
+	fmt.Println(pong, err)
+
+	err2 := client.Set(string(id), "value", 0).Err()
+	if err2 != nil {
+		panic(err2)
+	}
+
+	val, err := client.Get(string(id)).Result()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("1234567890", val)
+
 	return true
 }
